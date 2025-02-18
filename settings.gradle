@@ -1,0 +1,8 @@
+rootProject.name = 'subs-mgmt'
+
+include 'common'
+include 'auth-service'
+include 'subscription-command-service'
+include 'subscription-query-service'
+include 'notification-service'
+include 'api-gateway'

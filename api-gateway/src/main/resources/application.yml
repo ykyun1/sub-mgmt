@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:api-gateway}
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /api/auth/${segment}
+
+        - id: subscription-command-service
+          uri: lb://subscription-command-service
+          predicates:
+            - Path=/api/subscriptions/**
+            - Method=POST,PUT,DELETE
+          filters:
+            - RewritePath=/api/subscriptions/(?<segment>.*), /api/subscriptions/${segment}
+
+        - id: subscription-query-service
+          uri: lb://subscription-query-service
+          predicates:
+            - Path=/api/subscriptions/**
+            - Method=GET
+          filters:
+            - RewritePath=/api/subscriptions/(?<segment>.*), /api/subscriptions/${segment}
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWT_JWK_SET_URI}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+jwt:
+  secret: ${JWT_SECRET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+        
